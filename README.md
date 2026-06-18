@@ -1,30 +1,73 @@
-----------------------------------
-ESPANHOL
-----------------------------------
+# React + TypeScript + Vite
 
-## PRUEBA SPS REACT
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-- Crear un CRUD de usuarios
+Currently, two official plugins are available:
 
-## Reglas
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-- Crear la página de inicio de sesión (signIn) para autenticar al usuario (usar el usuario previamente registrado para validar).
-- Se puede utilizar cualquier tipo de almacenamiento para guardar el token.
-- Solo será posible registrar y/o visualizar usuarios si el usuario está autenticado.
-- Consumir la API creada anteriormente (test-sps-server).
+## React Compiler
 
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-----------------------------------
-PORTUGUÊS
-----------------------------------
+## Expanding the ESLint configuration
 
-# SPS REACT TEST
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-- Criar um CRUD de usuários
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-# Regras
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-- Criar a página de signIn para fazer a autenticação do usuário (Usar o usuário previamente cadastrado para validar)
-- Pode usar qualquer tipo de storage para guardar o token
-- Só será possível cadastrar e/ou visualizar os usuários se estiver autenticado
-- Chamar a API que foi criada anteriormente (test-sps-server)
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
