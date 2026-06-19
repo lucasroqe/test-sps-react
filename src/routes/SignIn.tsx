@@ -76,7 +76,7 @@ export function SignIn() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-login-password">Password</FieldLabel>
+                  <FieldLabel htmlFor="form-login-password">Senha</FieldLabel>
                   <Input
                     {...field}
                     id="form-login-password"

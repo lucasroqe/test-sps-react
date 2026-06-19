@@ -13,8 +13,8 @@ import { Toaster } from "@/components/ui/sonner"
 
 
 function ProtectedLayout() {
-  // const isAuthenticated = !!localStorage.getItem("token")
-  const isAuthenticated = true
+  const isAuthenticated = !!localStorage.getItem("token")
+
   if (!isAuthenticated) {
     return <Navigate to="/signin" replace />
   }
