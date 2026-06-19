@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
-import formSchema from "@/lib/zod";
+import { signinSchema } from "@/lib/zod"
 import { z } from "zod";
 import { Button } from "@/components/ui/button"
 import {
@@ -19,21 +19,32 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useNavigate } from "react-router-dom";
+import { authService } from "@/services/authService"
 
 export function SignIn() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const navigate = useNavigate()
+  
+  const form = useForm<z.infer<typeof signinSchema>>({
+    resolver: zodResolver(signinSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    toast.success("Logado com sucesso")
+ async function onSubmit(data: z.infer<typeof signinSchema>) {
+    try {
+      await authService.login(data.email, data.password)
+      toast.success("Logado com sucesso")
+      navigate("/users")
+    } catch (err: any) {
+      toast.error(err.response?.data?.message ?? "Falha no login")
+    }
   }
 
   return (
+    <div className="flex h-screen items-center justify-center p-4">
     <Card className="w-full sm:max-w-md">
       <CardHeader>
         <CardTitle>Login</CardTitle>
@@ -69,7 +80,7 @@ export function SignIn() {
                   <Input
                     {...field}
                     id="form-login-password"
-                    type="password"           
+                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="1234"
                     autoComplete="current-password"
@@ -83,11 +94,12 @@ export function SignIn() {
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal">
-          <Button type="submit" form="form-login">
+          <Button type="submit" form="form-login" disabled={form.formState.isSubmitting}>
             Sign In
           </Button>
         </Field>
       </CardFooter>
     </Card>
+    </div>
   )
 }

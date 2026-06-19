@@ -6,20 +6,20 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-                                        // coloca no cabeçalho
+  // coloca no cabeçalho que tem o bearer padrão
   if (token) config.headers.Authorization = `Bearer ${token}`;
-
   return config;
 });
 
 // desloga usuário se o back voltar 401
 api.interceptors.response.use((res) => res, (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
+  const isLogin = error.config?.url?.includes("/login");
 
-      window.location.href = "/signin";
-    }
-
-    return Promise.reject(error);
+  if (error.response?.status === 401 && !isLogin) {
+    localStorage.removeItem("token");
+    window.location.href = "/signin";
   }
+
+  return Promise.reject(error);
+}
 );

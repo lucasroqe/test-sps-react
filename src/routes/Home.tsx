@@ -13,7 +13,7 @@ export function Home() {
 
   function handleLogout() {
     localStorage.removeItem("token")
-    navigate("/")
+    navigate("/signin")
   }
 
   return (

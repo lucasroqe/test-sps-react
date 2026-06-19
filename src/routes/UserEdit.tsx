@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
-import formSchema from "@/lib/zod";
-import { z } from "zod";
+import { z } from "zod"
+import { userSchema } from "@/lib/zod"
+import { userService } from "@/services/userService"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,30 +22,60 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export function UserEdit() {
   const { id } = useParams()
   const navigate = useNavigate()
   const isEditing = !!id
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof userSchema>>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
       name: "",
       email: "",
+      type: "user",
       password: "",
     },
   })
 
   React.useEffect(() => {
-    if (isEditing) {
-      form.reset()
-    }
-  }, [id, isEditing, form])
+    if (!id) return
+    userService.get(id).then((user) => {
+      if (!user) {
+        navigate("/users")
+        return
+      }
+      form.reset({ name: user.name, email: user.email, type: user.type, password: "" })
+    })
+  }, [id])
 
-  function onSubmit() {
-    toast.success("Editado com sucesso")
-    navigate("/users")
+  async function onSubmit(values: z.infer<typeof userSchema>) {
+    if (!isEditing && !values.password) {
+      form.setError("password", { message: "Senha obrigatória" })
+      return
+    }
+
+    try {
+      if (isEditing) {
+        await userService.update(id!, {
+          name: values.name,
+          email: values.email,
+          type: values.type,
+        })
+      } else {
+        await userService.create(values)
+      }
+      navigate("/users")
+    } catch (err: any) {
+      toast.error(err.response?.data?.message ?? "Erro ao salvar")
+    }
   }
 
   return (
@@ -53,8 +84,8 @@ export function UserEdit() {
         <CardHeader>
           <CardTitle>{isEditing ? "Editar Usuário" : "Novo Usuário"}</CardTitle>
           <CardDescription>
-            {isEditing 
-              ? "Altere os dados do usuário selecionado." 
+            {isEditing
+              ? "Altere os dados do usuário selecionado."
               : "Preencha os dados para cadastrar um novo usuário."}
           </CardDescription>
         </CardHeader>
@@ -67,13 +98,7 @@ export function UserEdit() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="form-user-name">Nome</FieldLabel>
-                    <Input
-                      {...field}
-                      id="form-user-name"
-                      type="text"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Nome completo"
-                    />
+                    <Input {...field} id="form-user-name" type="text" placeholder="Nome completo" />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
@@ -84,14 +109,26 @@ export function UserEdit() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="form-user-email">Email</FieldLabel>
-                    <Input
-                      {...field}
-                      id="form-user-email"
-                      type="email"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="usuario@spsgroup.com.br"
-                    />
+                    <Input {...field} id="form-user-email" type="email" placeholder="usuario@spsgroup.com.br" />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="type"
+                control={form.control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="form-user-type">Tipo</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id="form-user-type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">user</SelectItem>
+                        <SelectItem value="admin">admin</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
               />
@@ -103,13 +140,7 @@ export function UserEdit() {
                     <FieldLabel htmlFor="form-user-password">
                       {isEditing ? "Nova Senha (opcional)" : "Senha"}
                     </FieldLabel>
-                    <Input
-                      {...field}
-                      id="form-user-password"
-                      type="password"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="****"
-                    />
+                    <Input {...field} id="form-user-password" type="password" placeholder="****" />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}

@@ -1,32 +1,37 @@
-import { 
-  createBrowserRouter, 
-  RouterProvider, 
+import {
+  createBrowserRouter,
+  RouterProvider,
   Navigate,
   Outlet
 } from "react-router-dom"
-
 import { SignIn } from "./routes/SignIn"
 import { Home } from "./routes/Home"
 import { Users } from "./routes/Users"
 import { UserEdit } from "./routes/UserEdit"
 import { ErrorPage } from "./routes/ErrorPage"
+import { Toaster } from "@/components/ui/sonner"
 
 
 function ProtectedLayout() {
-  const isAuthenticated = !!localStorage.getItem("token")
-
+  // const isAuthenticated = !!localStorage.getItem("token")
+  const isAuthenticated = true
   if (!isAuthenticated) {
     return <Navigate to="/signin" replace />
   }
-  
-return (
+
+  return (
     <div className="app-container">
-      <Outlet /> 
+      <Outlet />
     </div>
   )
 }
 
 const router = createBrowserRouter([
+  {  //signin dentro estava gerando loop! 
+    path: "/signin",
+    element: <SignIn />,
+    errorElement: <ErrorPage />,
+  },
   {
     path: "/",
     element: <ProtectedLayout />,
@@ -35,10 +40,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-      },
-      {
-        path: "signin",
-        element: <SignIn />,
       },
       {
         path: "users",
@@ -57,5 +58,10 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster richColors/>
+    </>
+  )
 }

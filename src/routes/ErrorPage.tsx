@@ -7,7 +7,7 @@ export function ErrorPage() {
   return (
     <div id="error-page">
       <h1>Oops!</h1>
-      <p>Aconteceu um erro inespeado :(</p>
+      <p>Aconteceu um erro inesperado :(</p>
       <p>
         <i>{error.statusText || error.message}</i>
       </p>
